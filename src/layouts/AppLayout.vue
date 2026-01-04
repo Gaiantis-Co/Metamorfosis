@@ -30,7 +30,7 @@ const logout = async () => {
                         </div>
                         
                         <!-- Navigation Links -->
-                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex text-nowrap">
                             <RouterLink 
                                 to="/dashboard" 
                                 class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-tech font-medium leading-5 transition duration-150 ease-in-out"
@@ -39,14 +39,45 @@ const logout = async () => {
                                 Dashboard
                             </RouterLink>
 
-                            <!-- Placeholder for other dropdowns as per blade file -->
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-zinc-400 hover:text-white focus:outline-none transition ease-in-out duration-150 font-tech">
-                                Gestión Académica
-                            </button>
+                            <RouterLink 
+                                to="/athletes" 
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-tech font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="[$route.path.startsWith('/athletes') ? 'border-neon-blue text-white' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/30']"
+                            >
+                                Atletas
+                            </RouterLink>
 
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-zinc-400 hover:text-white focus:outline-none transition ease-in-out duration-150 font-tech">
-                                Entrenamiento
-                            </button>
+                            <RouterLink 
+                                to="/coaches" 
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-tech font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="[$route.path.startsWith('/coaches') ? 'border-neon-blue text-white' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/30']"
+                            >
+                                Entrenadores
+                            </RouterLink>
+
+                            <RouterLink 
+                                to="/plans" 
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-tech font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="[$route.path.startsWith('/plans') ? 'border-neon-blue text-white' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/30']"
+                            >
+                                Planes
+                            </RouterLink>
+
+                            <RouterLink 
+                                to="/enrollments" 
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-tech font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="[$route.path.startsWith('/enrollments') ? 'border-neon-blue text-white' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/30']"
+                            >
+                                Inscripciones
+                            </RouterLink>
+
+                            <RouterLink 
+                                to="/academy" 
+                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-tech font-medium leading-5 transition duration-150 ease-in-out"
+                                :class="[$route.path.startsWith('/academy') ? 'border-neon-blue text-white' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/30']"
+                            >
+                                Academia
+                            </RouterLink>
                         </div>
                     </div>
 
@@ -81,6 +112,21 @@ const logout = async () => {
                 <div class="pt-2 pb-3 space-y-1">
                     <RouterLink to="/dashboard" class="block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out border-neon-blue text-neon-blue bg-white/5">
                         Dashboard
+                    </RouterLink>
+                    <RouterLink to="/athletes" class="block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out border-transparent text-zinc-400 hover:text-white hover:bg-white/5">
+                        Atletas
+                    </RouterLink>
+                    <RouterLink to="/coaches" class="block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out border-transparent text-zinc-400 hover:text-white hover:bg-white/5">
+                        Entrenadores
+                    </RouterLink>
+                    <RouterLink to="/plans" class="block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out border-transparent text-zinc-400 hover:text-white hover:bg-white/5">
+                        Planes
+                    </RouterLink>
+                    <RouterLink to="/enrollments" class="block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out border-transparent text-zinc-400 hover:text-white hover:bg-white/5">
+                        Inscripciones
+                    </RouterLink>
+                    <RouterLink to="/academy" class="block w-full ps-3 pe-4 py-2 border-l-4 text-start text-base font-medium transition duration-150 ease-in-out border-transparent text-zinc-400 hover:text-white hover:bg-white/5">
+                        Academia
                     </RouterLink>
                 </div>
              </div>
