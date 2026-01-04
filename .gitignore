@@ -35,5 +35,5 @@ coverage
 # Vitest
 __screenshots__/
 
-logs/
-tests_output/
+test-results/
+playwright-report/

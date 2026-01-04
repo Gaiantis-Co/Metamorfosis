@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@theme {
+    /* Fonts */
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Metamorphous', serif;
+    --font-branding: 'Rajdhani', sans-serif;
+    --font-tech: 'Orbitron', sans-serif;
+
+    /* Base Colors */
+    --color-background: #000000;
+    --color-surface: #0a0a0a;
+    --color-surface-hover: #161616;
+
+    /* Neon Palette */
+    --color-neon-yellow: #f8b803;
+    --color-neon-orange: #ff750f;
+    --color-neon-red: #f61500;
+    --color-neon-pink: #f43f5e;
+    --color-neon-purple: #a855f7;
+    --color-neon-blue: #3b82f6;
+    --color-neon-cyan: #06b6d4;
+
+    /* Borders */
+    --color-border-glow: rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Utilities */
+@layer base {
+    body {
+        @apply bg-background text-zinc-100 antialiased;
+        background-image:
+            radial-gradient(circle at 50% 50%, rgba(24, 24, 27, 0.5) 0%, transparent 100%),
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 100% 100%, 40px 40px, 40px 40px;
+    }
+}
+
+@layer utilities {
+    .glow-yellow {
+        filter: drop-shadow(0 0 8px var(--color-neon-yellow));
+    }
+
+    .glow-orange {
+        filter: drop-shadow(0 0 8px var(--color-neon-orange));
+    }
+
+    .glow-red {
+        filter: drop-shadow(0 0 8px var(--color-neon-red));
+    }
+
+    .glass {
+        @apply bg-black/60 backdrop-blur-xl border border-white/10;
+    }
+
+    .card-premium-shape {
+        clip-path: polygon(50% 0%, 85% 2%, 100% 10%,
+                100% 90%, 85% 98%, 50% 100%,
+                15% 98%, 0% 90%, 0% 10%, 15% 2%);
+    }
+
+    /* Sport Patterns */
+    .bg-soccer {
+        background-image:
+            radial-gradient(circle at 50% 50%, rgba(22, 101, 52, 0.4), transparent),
+            repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 2px, transparent 2px, transparent 10px);
+    }
+
+    .bg-basketball {
+        background-image:
+            radial-gradient(circle at 50% 50%, rgba(154, 52, 18, 0.4), transparent),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 100% 100%, 20px 20px, 20px 20px;
+    }
+
+    .bg-mma {
+        background-image:
+            radial-gradient(circle at 50% 50%, rgba(153, 27, 27, 0.4), transparent),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.05) 75%, transparent 75%, transparent);
+        background-size: 100% 100%, 40px 40px;
+    }
+
+    .bg-gamer {
+        background-image:
+            radial-gradient(circle at 50% 50%, rgba(107, 33, 168, 0.4), transparent),
+            linear-gradient(to bottom, transparent 0%, rgba(0, 255, 255, 0.05) 50%, transparent 100%);
+        background-size: 100% 100%, 100% 4px;
+    }
+
+    .neon-border-blue {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.3);
+        border: 1px solid rgba(59, 130, 246, 0.6);
+    }
+
+    .neon-border-yellow {
+        box-shadow: 0 0 15px rgba(248, 184, 3, 0.5), inset 0 0 10px rgba(248, 184, 3, 0.3);
+        border: 1px solid rgba(248, 184, 3, 0.6);
+    }
+
+    .neon-border-gold {
+        box-shadow: 0 0 20px rgba(248, 184, 3, 0.6), inset 0 0 15px rgba(248, 184, 3, 0.4);
+        border: 2px solid rgba(248, 184, 3, 0.8);
+    }
+
+    .premium-overlay {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%, rgba(0, 0, 0, 0.2) 100%);
+    }
+
+    /* 3D Flip Utilities */
+    .perspective-1000 {
+        perspective: 1000px;
+    }
+
+    .preserve-3d {
+        transform-style: preserve-3d;
+    }
+
+    .backface-hidden {
+        backface-visibility: hidden;
+    }
+
+    .rotate-y-180 {
+        transform: rotateY(180deg);
+    }
+
+    .flip-card-inner {
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+    }
+
+    .group:hover .flip-card-inner {
+        transform: rotateY(180deg);
+    }
+}
