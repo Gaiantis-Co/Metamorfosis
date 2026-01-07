@@ -2,7 +2,7 @@ import axios from 'axios'
 import notify from './toast'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || 'http://metamorfosis-back.test',
+  baseURL: import.meta.env.VITE_BACKEND_URL || 'https://metamorfosis-back.test',
   withCredentials: true,
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
