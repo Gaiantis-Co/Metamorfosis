@@ -52,7 +52,7 @@
     "vite": "^7.3.0",
     "vite-plugin-vue-devtools": "^8.0.5",
     "vitest": "^4.0.16",
-    "vue-tsc": "^3.2.1",
+    "vue-tsc": "^3.2.2",
     "dotenv": "^17.2.3",
     "ts-node": "^10.9.2"
   }
