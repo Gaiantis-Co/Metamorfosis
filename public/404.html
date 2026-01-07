@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Metamorfosis SPA Redirection</title>
+    <script type="text/javascript">
+        // GitHub Pages SPA trick (v2)
+        var pathSegmentsToKeep = 1; // /Metamorfosis
+
+        var l = window.location;
+        var repoPath = l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/');
+        var redirectPath = l.pathname.split('/').slice(1 + pathSegmentsToKeep).join('/').replace(/&/g, '~and~');
+
+        l.replace(
+            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+            repoPath + '/?p=/' + redirectPath +
+            (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash
+        );
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
