@@ -1,4 +1,13 @@
 {
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ]
+  },
   "files": [],
   "references": [
     {

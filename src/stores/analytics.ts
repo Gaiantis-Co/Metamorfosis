@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import apiClient from '../services/api'
+import api from '../lib/axios'
 
 export const useAnalyticsStore = defineStore('analytics', {
     state: () => ({
@@ -20,10 +20,10 @@ export const useAnalyticsStore = defineStore('analytics', {
 
                 // Parallel requests for dashboard widgets
                 const [kpis, athletes, revenue, attendance] = await Promise.allSettled([
-                    apiClient.get('/analytics/dashboard', { params }),
-                    apiClient.get('/analytics/athletes', { params: { academy_id: academyId } }),
-                    apiClient.get('/analytics/revenue', { params }),
-                    apiClient.get('/analytics/attendance', { params })
+                    api.get('/analytics/dashboard', { params }),
+                    api.get('/analytics/athletes', { params: { academy_id: academyId } }),
+                    api.get('/analytics/revenue', { params }),
+                    api.get('/analytics/attendance', { params })
                 ]);
 
                 this.kpis = kpis.status === 'fulfilled' ? kpis.value.data : null;

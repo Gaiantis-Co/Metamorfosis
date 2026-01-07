@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import apiClient from '../services/api'
+import api from '../lib/axios'
 
 interface Academy {
     id: number

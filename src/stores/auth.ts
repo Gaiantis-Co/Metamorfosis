@@ -1,124 +1,184 @@
 import { defineStore } from 'pinia'
-import apiClient from '../services/api'
-import { useRouter } from 'vue-router'
+import api from '../lib/axios'
+import { ref, computed } from 'vue'
 
 interface User {
     id: number
     name: string
     email: string
-    profile_photo_url?: string;
-    // Add other user properties
+    profile_photo_url?: string
 }
 
-interface AuthState {
-    user: User | null
-    isAuthenticated: boolean
-    loading: boolean
-    error: string | null
-    token: string | null
+interface Company {
+    id: number
+    nombre: string
+    identificacion: string
+    alias?: string
+    logo?: string
 }
 
-export const useAuthStore = defineStore('auth', {
-    state: (): AuthState => ({
-        user: null,
-        isAuthenticated: false,
-        loading: false,
-        error: null,
-        token: localStorage.getItem('token') || null,
-    }),
+interface AccessMode {
+    type: 'global_admin' | 'company'
+    rol: string
+    empresa_id: number | null
+    empresa?: Company
+}
 
-    actions: {
-        async loginWithRedirect() {
-            try {
-                // Fetch the redirect URL from the backend (which returns JSON)
-                // We use the proxy path '/api/auth/redirect' setup in vite.config.ts
-                const response = await apiClient.get('/api/auth/redirect');
+export const useAuthStore = defineStore('auth', () => {
+    const user = ref<User | null>(JSON.parse(localStorage.getItem('user') || 'null'))
+    const token = ref<string | null>(localStorage.getItem('auth_token'))
+    const sincronizerCode = ref<string | null>(localStorage.getItem('sincronizer_code'))
+    const accessModes = ref<AccessMode[]>([])
+    const requiresCompany = ref<boolean | 'optional'>(true)
+    const selectedCompany = ref<Partial<Company> | null>(null)
+    const companies = ref<Company[]>([])
+    const loading = ref(false)
+    const error = ref<string | null>(null)
 
-                if (response.data && response.data.url) {
-                    // Manually redirect the browser to the SSO URL returned by backend
-                    window.location.href = response.data.url;
-                } else {
-                    this.error = 'Respuesta inválida del servidor.';
-                    console.error('Invalid response:', response.data);
-                }
-            } catch (e) {
-                this.error = 'Error al conectar con el servicio de autenticación.';
-                console.error(e);
+    const isAuthenticated = computed(() => !!user.value && !!token.value)
+
+    /**
+     * Iniciar flujo OAuth - redirige a AccountsApp
+     */
+    async function loginWithRedirect() {
+        try {
+            loading.value = true
+            error.value = null
+            const response = await api.get('/api/auth/redirect')
+            if (response.data && response.data.url) {
+                window.location.href = response.data.url
             }
-        },
-
-        async handleCallback(code: string, state: string) {
-            this.loading = true;
-            try {
-                // Exchange code for token
-                // We use the proxy path '/api/auth/callback'
-                const response = await apiClient.get(`/auth/callback?code=${code}&state=${state}`);
-
-                // The backend should return the token and user data
-                // mirroring BackendApiService.php handleAuthCallback logic
-                const data = response.data;
-
-                if (data.token) {
-                    this.token = data.token;
-                    this.user = data.user;
-                    this.isAuthenticated = true;
-                    localStorage.setItem('token', data.token);
-                }
-
-                return data; // Return full data in case controller needs it (e.g. requires_company)
-            } catch (err: any) {
-                this.error = 'Falló la autenticación con GAIANTIS';
-                console.error(err);
-                throw err;
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        async login(credentials: any) {
-            this.loading = true;
-            this.error = null;
-            try {
-                // 1. Get CSRF Cookie (Sanctum)
-                await apiClient.get('/sanctum/csrf-cookie');
-
-                // 2. Login Request
-                await apiClient.post('/login', credentials);
-
-                // 3. Fetch User Data
-                await this.fetchUser();
-
-                return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Login failed';
-                this.isAuthenticated = false;
-                throw err;
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        async logout() {
-            try {
-                await apiClient.post('/logout');
-            } catch (err) {
-                console.error('Logout error', err);
-            } finally {
-                this.user = null;
-                this.isAuthenticated = false;
-                // Cleanup potentially
-            }
-        },
-
-        async fetchUser() {
-            try {
-                const response = await apiClient.get('/api/user');
-                this.user = response.data;
-                this.isAuthenticated = true;
-            } catch (error) {
-                this.user = null;
-                this.isAuthenticated = false;
-            }
+        } catch (err: any) {
+            error.value = 'Error al iniciar sesión con GAIANTIS'
+            console.error('Error al iniciar OAuth:', err)
+            throw err
+        } finally {
+            loading.value = false
         }
-    },
+    }
+
+    /**
+     * Manejar callback OAuth
+     */
+    async function handleOAuthCallback(code: string, state?: string) {
+        try {
+            loading.value = true
+            error.value = null
+            const response = await api.get('/api/auth/callback', {
+                params: { code, state },
+            })
+
+            const {
+                token: sanctumToken,
+                user: userData,
+                access_modes,
+                requires_company,
+                companies: responseCompanies,
+                sincronizer: responseSincronizer,
+            } = response.data
+
+            token.value = sanctumToken
+            user.value = userData
+            sincronizerCode.value = responseSincronizer
+            accessModes.value = access_modes || []
+            requiresCompany.value = requires_company
+            companies.value = responseCompanies || []
+
+            localStorage.setItem('auth_token', sanctumToken)
+            localStorage.setItem('user', JSON.stringify(userData))
+            if (responseSincronizer) {
+                localStorage.setItem('sincronizer_code', responseSincronizer)
+            }
+
+            return response.data
+        } catch (err) {
+            error.value = 'Falló la autenticación con GAIANTIS'
+            console.error('Error en callback OAuth:', err)
+            throw err
+        } finally {
+            loading.value = false
+        }
+    }
+
+    /**
+     * Seleccionar empresa/academia
+     */
+    async function selectCompany(companyId: number) {
+        try {
+            loading.value = true
+            const response = await api.post('/api/select-company', {
+                company_id: companyId,
+            })
+
+            selectedCompany.value = response.data
+            return response.data
+        } catch (err) {
+            console.error('Error al seleccionar empresa:', err)
+            throw err
+        } finally {
+            loading.value = false
+        }
+    }
+
+    /**
+     * Obtener usuario autenticado
+     */
+    async function fetchUser() {
+        try {
+            const response = await api.get('/api/user')
+            user.value = response.data.user
+            selectedCompany.value = response.data.selected_company_id
+                ? { id: response.data.selected_company_id }
+                : null
+            return response.data
+        } catch (err) {
+            logout()
+            throw err
+        }
+    }
+
+    /**
+     * Cerrar sesión
+     */
+    async function logout() {
+        try {
+            if (token.value) {
+                await api.post('/api/logout', {
+                    sincronizer: sincronizerCode.value,
+                })
+            }
+        } catch (err) {
+            console.error('Logout error', err)
+        } finally {
+            user.value = null
+            token.value = null
+            sincronizerCode.value = null
+            accessModes.value = []
+            selectedCompany.value = null
+            companies.value = []
+
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('user')
+            localStorage.removeItem('sincronizer_code')
+            localStorage.removeItem('current_context')
+        }
+    }
+
+    return {
+        user,
+        token,
+        sincronizerCode,
+        isAuthenticated,
+        accessModes,
+        requiresCompany,
+        selectedCompany,
+        companies,
+        loading,
+        error,
+        loginWithRedirect,
+        handleOAuthCallback,
+        selectCompany,
+        fetchUser,
+        logout,
+    }
 })

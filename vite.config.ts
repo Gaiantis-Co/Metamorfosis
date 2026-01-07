@@ -3,14 +3,35 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import tailwindcss from '@tailwindcss/vite'
+import { visualizer } from 'rollup-plugin-visualizer'
+import type { Plugin } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Metamorfosis/',
-  plugins: [vue(), vueDevTools()],
+  base: process.env.VITE_BASE_PATH || '/',
+  plugins: [
+    vue(),
+    vueDevTools(),
+    tailwindcss(),
+    visualizer({
+      open: false,
+      filename: 'bundle-analysis.html',
+    }) as Plugin,
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-ui': ['vue', 'vue-router', 'pinia', 'vue-toastification'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
 })

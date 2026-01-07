@@ -1,9 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/auth/LoginView.vue'
-import CallbackView from '../views/auth/CallbackView.vue'
-import DashboardView from '../views/DashboardView.vue'
-import AcademySetupView from '../views/setup/AcademySetupView.vue'
+import { useAuthStore } from '../stores/auth'
+import { useContextStore } from '../stores/context'
+
+// Lazy Loading Views
+const HomeView = () => import('../views/HomeView.vue')
+const LoginView = () => import('../views/auth/LoginView.vue')
+const CallbackView = () => import('../views/auth/CallbackView.vue')
+const DashboardView = () => import('../views/DashboardView.vue')
+const AcademySetupView = () => import('../views/setup/AcademySetupView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -164,19 +168,47 @@ const router = createRouter({
   ],
 })
 
-// Navigation Guard Placeholder
-router.beforeEach((to, from, next) => {
-  // TODO: Implement actual Auth check via Pinia
-  const isAuthenticated = false;
+// Navigation Guard
+router.beforeEach(async (to, from, next) => {
+  const auth = useAuthStore()
+  const contextStore = useContextStore()
 
-  if (to.meta.requiresAuth && !isAuthenticated && to.name !== 'login') {
-    // For now, allow navigation to test UI without auth
-    // console.log('Auth required but skipped for dev');
-    next();
-    // next({ name: 'login' }); // Uncomment when Auth is ready
-  } else {
-    next();
+  // Allow callbak without auth
+  if (to.name === 'auth.callback') {
+    return next()
   }
+
+  // Auth requirement
+  if (to.meta.requiresAuth) {
+    if (!auth.isAuthenticated) {
+      if (auth.token) {
+        try {
+          await auth.fetchUser()
+        } catch {
+          return next('/login')
+        }
+      } else {
+        return next('/login')
+      }
+    }
+
+    // Context selection check (if applicable to Metamorfosis)
+    if (
+      auth.accessModes.length > 1 &&
+      !auth.selectedCompany &&
+      to.name !== 'dashboard' // Usually Metamorfosis handles selection in dashboard or a dedicated view
+    ) {
+      // For now, Metamorfosis uses Dashboard for choosing or just continues
+      // but we add this for future parity with SelectContext.vue template
+    }
+  }
+
+  // Redirect if already logged in
+  if (to.name === 'login' && auth.isAuthenticated) {
+    return next('/dashboard')
+  }
+
+  next()
 })
 
 export default router
